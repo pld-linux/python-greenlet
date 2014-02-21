@@ -1,12 +1,4 @@
 
-# TODO:
-#	one of two happens when building 'with python2_tests':
-#	- FAIL: test_threaded_adv_leak (tests.test_leaks.ArgRefcountTests)
-#	or:
-#       - PYTHONPATH=/home/users/jajcus/rpm/BUILD/greenlet-0.4.2/build/lib.linux-i686-2.7 /usr/bin/python benchmarks/chain.py
-#         python: Objects/object.c:2453: _PyTrash_thread_deposit_object: Assertion `((((((((PyObject*)(op))->ob_type)))->tp_flags & ((1L<<14))) != 0) && ((((PyObject*)(op))->ob_type)->tp_is_gc == ((void *)0) || (((PyObject*)(op))->ob_type)->tp_is_gc(op)))' failed.
-#         Result:Aborted
-
 # Conditional build:
 %bcond_without	tests	# do not perform "make test"
 %bcond_without	python2 # CPython 2.x module
