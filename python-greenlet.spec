@@ -21,12 +21,13 @@
 Summary:	Lightweight in-process concurrent programming
 Name:		python-%{module}
 Version:	0.4.2
-Release:	0.1
+Release:	1
 License:	MIT & PSF
 Group:		Libraries/Python
 URL:		http://pypi.python.org/pypi/greenlet
 Source0:	http://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.zip
 # Source0-md5:	580a8a5e833351f7abdaedb1a877f7ac
+Patch0:		%{name}-gc_assertion_error.patch
 %if %{with python2}
 BuildRequires:	python-devel
 BuildRequires:	python-setuptools
@@ -75,6 +76,7 @@ This package contains header files required for C modules development.
 
 %prep
 %setup -q -n greenlet-%{version}
+%patch0 -p1
 
 %build
 %if %{with python2}
