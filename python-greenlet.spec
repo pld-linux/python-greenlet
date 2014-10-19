@@ -12,14 +12,13 @@
 %define 	module	greenlet
 Summary:	Lightweight in-process concurrent programming
 Name:		python-%{module}
-Version:	0.4.2
-Release:	2
+Version:	0.4.5
+Release:	1
 License:	MIT & PSF
 Group:		Libraries/Python
 URL:		http://pypi.python.org/pypi/greenlet
 Source0:	http://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.zip
-# Source0-md5:	580a8a5e833351f7abdaedb1a877f7ac
-Patch0:		%{name}-gc_assertion_error.patch
+# Source0-md5:	ce383f6475e6311cf8932ea779938703
 %if %{with python2}
 BuildRequires:	python-devel
 BuildRequires:	python-setuptools
@@ -68,7 +67,6 @@ This package contains header files required for C modules development.
 
 %prep
 %setup -q -n greenlet-%{version}
-%patch0 -p1
 
 %build
 %if %{with python2}
@@ -93,7 +91,7 @@ CFLAGS="%{rpmcflags}" \
 %if %{with tests}
 # Run the upstream benchmarking suite to further exercise the code:
 mkdir -p benchmarks-3
-2to3-3.3 -o benchmarks-3 -n -w --no-diffs benchmarks
+2to3-3.4 -o benchmarks-3 -n -w --no-diffs benchmarks
 PYTHONPATH=$(echo $(pwd)/build/lib.*-3.?) %{__python3} benchmarks-3/chain.py
 %endif
 %endif
