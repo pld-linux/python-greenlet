@@ -13,7 +13,7 @@
 Summary:	Lightweight in-process concurrent programming
 Name:		python-%{module}
 Version:	0.4.5
-Release:	1
+Release:	1.1
 License:	MIT & PSF
 Group:		Libraries/Python
 URL:		http://pypi.python.org/pypi/greenlet
@@ -71,7 +71,8 @@ This package contains header files required for C modules development.
 %build
 %if %{with python2}
 CC="%{__cc}" \
-CFLAGS="%{rpmcflags}" \
+# https://bugzilla.opensuse.org/show_bug.cgi?id=902146
+CFLAGS="%{rpmcflags} -fno-tree-dominator-opts" \
 %{__python} setup.py build
 
 %if %{with python2_tests}
