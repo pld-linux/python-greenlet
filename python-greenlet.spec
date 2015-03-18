@@ -1,3 +1,4 @@
+# TODO: Use  no-tree-dominator-opts for x32 only
 
 # Conditional build:
 %bcond_without	tests	# do not perform "make test"
@@ -13,7 +14,7 @@
 Summary:	Lightweight in-process concurrent programming
 Name:		python-%{module}
 Version:	0.4.5
-Release:	1.1
+Release:	2
 License:	MIT & PSF
 Group:		Libraries/Python
 URL:		http://pypi.python.org/pypi/greenlet
@@ -70,8 +71,8 @@ This package contains header files required for C modules development.
 
 %build
 %if %{with python2}
+# -fno-tree-dominator-opts becouse https://bugzilla.opensuse.org/show_bug.cgi?id=902146
 CC="%{__cc}" \
-# https://bugzilla.opensuse.org/show_bug.cgi?id=902146
 CFLAGS="%{rpmcflags} -fno-tree-dominator-opts" \
 %{__python} setup.py build
 
@@ -84,9 +85,9 @@ PYTHONPATH=$(echo $(pwd)/build/lib.*-2.?) %{__python} benchmarks/chain.py
 %endif
 
 %if %{with python3}
-# CC/CFLAGS is only for arch packages - remove on noarch packages
+# -fno-tree-dominator-opts becouse https://bugzilla.opensuse.org/show_bug.cgi?id=902146
 CC="%{__cc}" \
-CFLAGS="%{rpmcflags}" \
+CFLAGS="%{rpmcflags} -fno-tree-dominator-opts" \
 %{__python3} setup.py build %{?with_tests:test}
 
 %if %{with tests}
