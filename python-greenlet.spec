@@ -1,5 +1,3 @@
-# TODO: Use  no-tree-dominator-opts for x32 only
-
 # Conditional build:
 %bcond_without	tests	# do not perform "make test"
 %bcond_without	python2 # CPython 2.x module
@@ -14,7 +12,7 @@
 Summary:	Lightweight in-process concurrent programming
 Name:		python-%{module}
 Version:	0.4.5
-Release:	2
+Release:	3
 License:	MIT & PSF
 Group:		Libraries/Python
 URL:		http://pypi.python.org/pypi/greenlet
@@ -33,6 +31,9 @@ BuildRequires:	python3-modules
 BuildRequires:	rpmbuild(macros) >= 1.219
 BuildRequires:	rpm-pythonprov
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+# -fno-tree-dominator-opts becouse https://bugzilla.opensuse.org/show_bug.cgi?id=902146
+%define		specflags_x32	-fno-tree-dominator-opts
 
 %description
 The greenlet package is a spin-off of Stackless, a version of CPython
@@ -71,9 +72,8 @@ This package contains header files required for C modules development.
 
 %build
 %if %{with python2}
-# -fno-tree-dominator-opts becouse https://bugzilla.opensuse.org/show_bug.cgi?id=902146
 CC="%{__cc}" \
-CFLAGS="%{rpmcflags} -fno-tree-dominator-opts" \
+CFLAGS="%{rpmcflags} " \
 %{__python} setup.py build
 
 %if %{with python2_tests}
@@ -85,9 +85,8 @@ PYTHONPATH=$(echo $(pwd)/build/lib.*-2.?) %{__python} benchmarks/chain.py
 %endif
 
 %if %{with python3}
-# -fno-tree-dominator-opts becouse https://bugzilla.opensuse.org/show_bug.cgi?id=902146
 CC="%{__cc}" \
-CFLAGS="%{rpmcflags} -fno-tree-dominator-opts" \
+CFLAGS="%{rpmcflags}" \
 %{__python3} setup.py build %{?with_tests:test}
 
 %if %{with tests}
