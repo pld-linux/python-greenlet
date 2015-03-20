@@ -15,9 +15,11 @@ Version:	0.4.5
 Release:	3
 License:	MIT & PSF
 Group:		Libraries/Python
-URL:		http://pypi.python.org/pypi/greenlet
 Source0:	http://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.zip
 # Source0-md5:	ce383f6475e6311cf8932ea779938703
+URL:		http://pypi.python.org/pypi/greenlet
+BuildRequires:	rpm-pythonprov
+BuildRequires:	rpmbuild(macros) >= 1.219
 %if %{with python2}
 BuildRequires:	python-devel
 BuildRequires:	python-setuptools
@@ -28,11 +30,9 @@ BuildRequires:	python3-devel
 BuildRequires:	python3-distribute
 BuildRequires:	python3-modules
 %endif
-BuildRequires:	rpmbuild(macros) >= 1.219
-BuildRequires:	rpm-pythonprov
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-# -fno-tree-dominator-opts becouse https://bugzilla.opensuse.org/show_bug.cgi?id=902146
+# -fno-tree-dominator-opts because https://bugzilla.opensuse.org/show_bug.cgi?id=902146
 %define		specflags_x32	-fno-tree-dominator-opts
 
 %description
@@ -98,6 +98,7 @@ PYTHONPATH=$(echo $(pwd)/build/lib.*-3.?) %{__python3} benchmarks-3/chain.py
 %endif
 
 %install
+rm -rf $RPM_BUILD_ROOT
 %if %{with python2}
 %{__python} setup.py \
 	install --skip-build \
