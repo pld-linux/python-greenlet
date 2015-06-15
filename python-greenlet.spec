@@ -11,12 +11,12 @@
 %define 	module	greenlet
 Summary:	Lightweight in-process concurrent programming
 Name:		python-%{module}
-Version:	0.4.5
-Release:	3
+Version:	0.4.7
+Release:	1
 License:	MIT & PSF
 Group:		Libraries/Python
 Source0:	http://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.zip
-# Source0-md5:	ce383f6475e6311cf8932ea779938703
+# Source0-md5:	c2333a8ff30fa75c5d5ec0e67b461086
 URL:		http://pypi.python.org/pypi/greenlet
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.219
@@ -27,7 +27,7 @@ BuildRequires:	python-setuptools
 %if %{with python3}
 BuildRequires:	python3-2to3
 BuildRequires:	python3-devel
-BuildRequires:	python3-distribute
+BuildRequires:	python3-setuptools
 BuildRequires:	python3-modules
 %endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
