@@ -11,12 +11,12 @@
 %define 	module	greenlet
 Summary:	Lightweight in-process concurrent programming
 Name:		python-%{module}
-Version:	0.4.7
-Release:	3
+Version:	0.4.9
+Release:	1
 License:	MIT & PSF
 Group:		Libraries/Python
 Source0:	http://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.zip
-# Source0-md5:	c2333a8ff30fa75c5d5ec0e67b461086
+# Source0-md5:	c6659cdb2a5e591723e629d2eef22e82
 URL:		http://pypi.python.org/pypi/greenlet
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.219
@@ -25,7 +25,8 @@ BuildRequires:	python-devel
 BuildRequires:	python-setuptools
 %endif
 %if %{with python3}
-BuildRequires:	python3-2to3
+BuildRequires:	python3-2to3 >= 3.5
+BuildRequires:	python3-2to3 < 3.6
 BuildRequires:	python3-devel
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-modules
@@ -92,7 +93,7 @@ CFLAGS="%{rpmcflags}" \
 %if %{with tests}
 # Run the upstream benchmarking suite to further exercise the code:
 mkdir -p benchmarks-3
-2to3-3.4 -o benchmarks-3 -n -w --no-diffs benchmarks
+2to3-3.5 -o benchmarks-3 -n -w --no-diffs benchmarks
 PYTHONPATH=$(echo $(pwd)/build/lib.*-3.?) %{__python3} benchmarks-3/chain.py
 %endif
 %endif
