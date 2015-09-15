@@ -25,8 +25,8 @@ BuildRequires:	python-devel
 BuildRequires:	python-setuptools
 %endif
 %if %{with python3}
-BuildRequires:	python3-2to3 >= 3.5
-BuildRequires:	python3-2to3 < 3.6
+BuildRequires:	python3-2to3 >= 1:3.5
+BuildRequires:	python3-2to3 < 1:3.6
 BuildRequires:	python3-devel
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-modules
