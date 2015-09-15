@@ -25,8 +25,7 @@ BuildRequires:	python-devel
 BuildRequires:	python-setuptools
 %endif
 %if %{with python3}
-BuildRequires:	python3-2to3 >= 1:3.5
-BuildRequires:	python3-2to3 < 1:3.6
+BuildRequires:	python3-2to3
 BuildRequires:	python3-devel
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-modules
@@ -93,7 +92,7 @@ CFLAGS="%{rpmcflags}" \
 %if %{with tests}
 # Run the upstream benchmarking suite to further exercise the code:
 mkdir -p benchmarks-3
-2to3-3.5 -o benchmarks-3 -n -w --no-diffs benchmarks
+2to3-%{py3_ver} -o benchmarks-3 -n -w --no-diffs benchmarks
 PYTHONPATH=$(echo $(pwd)/build/lib.*-3.?) %{__python3} benchmarks-3/chain.py
 %endif
 %endif
