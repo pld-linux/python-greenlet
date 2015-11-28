@@ -12,7 +12,7 @@
 Summary:	Lightweight in-process concurrent programming
 Name:		python-%{module}
 Version:	0.4.9
-Release:	1
+Release:	2
 License:	MIT & PSF
 Group:		Libraries/Python
 Source0:	http://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.zip
