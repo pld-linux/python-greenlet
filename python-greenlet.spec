@@ -74,7 +74,7 @@ This package contains header files required for C modules development.
 %if %{with python2}
 CC="%{__cc}" \
 CFLAGS="%{rpmcflags} " \
-%{__python} setup.py build
+%py_build
 
 %if %{with python2_tests}
 %{__python} setup.py test
@@ -85,9 +85,7 @@ PYTHONPATH=$(echo $(pwd)/build/lib.*-2.?) %{__python} benchmarks/chain.py
 %endif
 
 %if %{with python3}
-CC="%{__cc}" \
-CFLAGS="%{rpmcflags}" \
-%{__python3} setup.py build %{?with_tests:test}
+%py3_build %{?with_tests:test}
 
 %if %{with tests}
 # Run the upstream benchmarking suite to further exercise the code:
@@ -100,19 +98,13 @@ PYTHONPATH=$(echo $(pwd)/build/lib.*-3.?) %{__python3} benchmarks-3/chain.py
 %install
 rm -rf $RPM_BUILD_ROOT
 %if %{with python2}
-%{__python} setup.py \
-	install --skip-build \
-	--optimize=2 \
-	--root=$RPM_BUILD_ROOT
+%py_install
 
 %py_postclean
 %endif
 
 %if %{with python3}
-%{__python3} setup.py \
-	install --skip-build \
-	--optimize=2 \
-	--root=$RPM_BUILD_ROOT
+%py3_install
 %endif
 
 %clean
