@@ -19,7 +19,7 @@ Source0:	http://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.
 # Source0-md5:	c6659cdb2a5e591723e629d2eef22e82
 URL:		http://pypi.python.org/pypi/greenlet
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.219
+BuildRequires:	rpmbuild(macros) >= 1.710
 %if %{with python2}
 BuildRequires:	python-devel
 BuildRequires:	python-setuptools
