@@ -1,3 +1,4 @@
+#
 # Conditional build:
 %bcond_without	tests	# do not perform "make test"
 %bcond_without	python2 # CPython 2.x module
@@ -10,26 +11,29 @@
 
 %define 	module	greenlet
 Summary:	Lightweight in-process concurrent programming
+Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Name:		python-%{module}
 Version:	0.4.9
 Release:	2
-License:	MIT & PSF
+License:	MIT, PSF (Stackless Python parts)
 Group:		Libraries/Python
-Source0:	http://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.zip
+#Source0Download: https://pypi.python.org/simple/greenlet/
+Source0:	https://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.zip
 # Source0-md5:	c6659cdb2a5e591723e629d2eef22e82
-URL:		http://pypi.python.org/pypi/greenlet
+URL:		https://pypi.python.org/pypi/greenlet
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.710
+BuildRequires:	rpmbuild(macros) >= 1.714
 %if %{with python2}
-BuildRequires:	python-devel
+BuildRequires:	python-devel >= 1:2.4
 BuildRequires:	python-setuptools
 %endif
 %if %{with python3}
-BuildRequires:	python3-2to3
-BuildRequires:	python3-devel
+BuildRequires:	python3-2to3 >= 1:3.2
+BuildRequires:	python3-devel >= 1:3.2
 BuildRequires:	python3-setuptools
-BuildRequires:	python3-modules
+BuildRequires:	python3-modules >= 1:3.2
 %endif
+Requires:	python-modules >= 1:2.4
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # -fno-tree-dominator-opts because https://bugzilla.opensuse.org/show_bug.cgi?id=902146
@@ -41,17 +45,32 @@ that supports micro-threads called "tasklets". Tasklets run
 pseudo-concurrently (typically in a single or a few OS-level threads)
 and are synchronized with data exchanges on "channels".
 
+%description -l pl.UTF-8
+Pakiet greenlet to odprysk projektu Stackless - wersji CPythona
+obsługującej mikrowątki zwane "taskletami". Tasklety działają
+pseudorównolegle (zwykle w jednym lub kilku wątkach na poziomie
+systemu operacyjnego) i są synchronizowane przy wymianie danych
+poprzez "kanały".
+
 %package devel
-Summary:	C development headers for python-greenlet
+Summary:	C development headers for Python 2 greenlet module
+Summary(pl.UTF-8):	Pliki nagłówkowe C dla modułu Pythona 2 greenlet
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
+Requires:	python-devel >= 1:2.4
 
 %description devel
 This package contains header files required for C modules development.
 
+%description devel -l pl.UTF-8
+Ten pakiet zawiera pliki nagłówkowe potrzebne do tworzenia modułów w
+C.
+
 %package -n python3-%{module}
 Summary:	Lightweight in-process concurrent programming
+Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Group:		Libraries/Python
+Requires:	python3-modules >= 1:3.2
 
 %description -n python3-%{module}
 The greenlet package is a spin-off of Stackless, a version of CPython
@@ -59,13 +78,26 @@ that supports micro-threads called "tasklets". Tasklets run
 pseudo-concurrently (typically in a single or a few OS-level threads)
 and are synchronized with data exchanges on "channels".
 
+%description -n python3-%{module} -l pl.UTF-8
+Pakiet greenlet to odprysk projektu Stackless - wersji CPythona
+obsługującej mikrowątki zwane "taskletami". Tasklety działają
+pseudorównolegle (zwykle w jednym lub kilku wątkach na poziomie
+systemu operacyjnego) i są synchronizowane przy wymianie danych
+poprzez "kanały".
+
 %package -n python3-%{module}-devel
-Summary:	C development headers for python3-greenlet
+Summary:	C development headers for Python 3 greenlet module
+Summary(pl.UTF-8):	Pliki nagłówkowe C dla modułu Pythona 3 greenlet
 Group:		Development/Libraries
 Requires:	python3-%{module} = %{version}-%{release}
+Requires:	python3-devel >= 1:3.2
 
 %description -n python3-%{module}-devel
 This package contains header files required for C modules development.
+
+%description -n python3-%{module}-devel -l pl.UTF-8
+Ten pakiet zawiera pliki nagłówkowe potrzebne do tworzenia modułów w
+C.
 
 %prep
 %setup -q -n greenlet-%{version}
@@ -74,13 +106,11 @@ This package contains header files required for C modules development.
 %if %{with python2}
 CC="%{__cc}" \
 CFLAGS="%{rpmcflags} " \
-%py_build
+%py_build %{?with_python2_tests:test}
 
 %if %{with python2_tests}
-%{__python} setup.py test
-
 # Run the upstream benchmarking suite to further exercise the code:
-PYTHONPATH=$(echo $(pwd)/build/lib.*-2.?) %{__python} benchmarks/chain.py
+PYTHONPATH=$(echo $(pwd)/build-2/lib.*-2.?) %{__python} benchmarks/chain.py
 %endif
 %endif
 
@@ -91,7 +121,7 @@ PYTHONPATH=$(echo $(pwd)/build/lib.*-2.?) %{__python} benchmarks/chain.py
 # Run the upstream benchmarking suite to further exercise the code:
 mkdir -p benchmarks-3
 2to3-%{py3_ver} -o benchmarks-3 -n -w --no-diffs benchmarks
-PYTHONPATH=$(echo $(pwd)/build/lib.*-3.?) %{__python3} benchmarks-3/chain.py
+PYTHONPATH=$(echo $(pwd)/build-3/lib.*-3.?) %{__python3} benchmarks-3/chain.py
 %endif
 %endif
 
@@ -110,22 +140,26 @@ rm -rf $RPM_BUILD_ROOT
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%if %{with python2}
 %files
 %defattr(644,root,root,755)
-%doc doc/greenlet.txt README.rst benchmarks AUTHORS NEWS LICENSE
-%attr(755,root,root) %{py_sitedir}/%{module}.so
-%{py_sitedir}/%{module}*.egg-info
+%doc AUTHORS LICENSE NEWS README.rst doc/greenlet.txt benchmarks
+%attr(755,root,root) %{py_sitedir}/greenlet.so
+%{py_sitedir}/greenlet-%{version}-py*.egg-info
 
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/python%{py_ver}/greenlet
+%endif
 
+%if %{with python3}
 %files -n python3-%{module}
 %defattr(644,root,root,755)
-%doc doc/greenlet.txt README.rst benchmarks AUTHORS NEWS LICENSE
-%attr(755,root,root) %{py3_sitedir}/%{module}.*.so
-%{py3_sitedir}/%{module}*.egg-info
+%doc AUTHORS LICENSE NEWS README.rst doc/greenlet.txt benchmarks-3
+%attr(755,root,root) %{py3_sitedir}/greenlet.cpython-*.so
+%{py3_sitedir}/greenlet-%{version}-py*.egg-info
 
 %files -n python3-%{module}-devel
 %defattr(644,root,root,755)
 %{_includedir}/python%{py3_ver}*/greenlet
+%endif
