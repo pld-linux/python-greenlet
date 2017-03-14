@@ -1,25 +1,25 @@
 #
 # Conditional build:
-%bcond_without	tests	# do not perform "make test"
-%bcond_without	python2 # CPython 2.x module
-%bcond_without	python3 # CPython 3.x module
-%bcond_without	python2_tests # CPython 2.x module tests
+%bcond_without	python2		# CPython 2.x module
+%bcond_without	python3		# CPython 3.x module
+%bcond_without	tests		# unit tests and benchmarks (any)
+%bcond_without	tests_py2	# CPython 2.x module tests
 
 %if %{without tests}
-%undefine	with_python2_tests
+%undefine	with_tests_py2
 %endif
 
 %define 	module	greenlet
 Summary:	Lightweight in-process concurrent programming
 Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Name:		python-%{module}
-Version:	0.4.9
-Release:	3
+Version:	0.4.12
+Release:	1
 License:	MIT, PSF (Stackless Python parts)
 Group:		Libraries/Python
 #Source0Download: https://pypi.python.org/simple/greenlet/
-Source0:	https://pypi.python.org/packages/source/g/greenlet/%{module}-%{version}.zip
-# Source0-md5:	c6659cdb2a5e591723e629d2eef22e82
+Source0:	https://files.pythonhosted.org/packages/source/g/greenlet/%{module}-%{version}.tar.gz
+# Source0-md5:	e8637647d58a26c4a1f51ca393e53c00
 URL:		https://pypi.python.org/pypi/greenlet
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.714
@@ -104,11 +104,9 @@ C.
 
 %build
 %if %{with python2}
-CC="%{__cc}" \
-CFLAGS="%{rpmcflags} " \
-%py_build %{?with_python2_tests:test}
+%py_build %{?with_tests_py2:test}
 
-%if %{with python2_tests}
+%if %{with tests_py2}
 # Run the upstream benchmarking suite to further exercise the code:
 PYTHONPATH=$(echo $(pwd)/build-2/lib.*-2.?) %{__python} benchmarks/chain.py
 %endif
@@ -127,6 +125,7 @@ PYTHONPATH=$(echo $(pwd)/build-3/lib.*-3.?) %{__python3} benchmarks-3/chain.py
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
 %if %{with python2}
 %py_install
 
