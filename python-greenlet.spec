@@ -13,14 +13,14 @@
 Summary:	Lightweight in-process concurrent programming
 Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Name:		python-%{module}
-Version:	0.4.13
-Release:	2
+Version:	0.4.14
+Release:	1
 License:	MIT, PSF (Stackless Python parts)
 Group:		Libraries/Python
-#Source0Download: https://pypi.python.org/simple/greenlet/
+#Source0Download: https://pypi.org/simple/greenlet/
 Source0:	https://files.pythonhosted.org/packages/source/g/greenlet/%{module}-%{version}.tar.gz
-# Source0-md5:	6e0b9dd5385f81d478451ec8ed1d62b3
-URL:		https://pypi.python.org/pypi/greenlet
+# Source0-md5:	a87b6028c3b742b210bf5973939db595
+URL:		https://pypi.org/project/greenlet/
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.714
 %if %{with python2}
