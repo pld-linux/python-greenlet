@@ -14,7 +14,7 @@ Summary:	Lightweight in-process concurrent programming
 Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Name:		python-%{module}
 Version:	0.4.15
-Release:	2
+Release:	3
 License:	MIT, PSF (Stackless Python parts)
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/greenlet/
@@ -157,7 +157,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with python3}
 %files -n python3-%{module}
 %defattr(644,root,root,755)
-%doc AUTHORS LICENSE NEWS README.rst doc/greenlet.txt benchmarks-3
+%doc AUTHORS LICENSE NEWS README.rst doc/greenlet.txt %{?with_tests:benchmarks-3}
 %attr(755,root,root) %{py3_sitedir}/greenlet.cpython-*.so
 %{py3_sitedir}/greenlet-%{version}-py*.egg-info
 
