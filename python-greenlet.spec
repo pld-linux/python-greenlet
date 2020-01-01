@@ -2,6 +2,7 @@
 # Conditional build:
 %bcond_without	python2		# CPython 2.x module
 %bcond_without	python3		# CPython 3.x module
+%bcond_without	doc		# Sphinx documentation
 %bcond_without	tests		# unit tests and benchmarks (any)
 %bcond_without	tests_py2	# CPython 2.x module tests
 
@@ -14,12 +15,13 @@ Summary:	Lightweight in-process concurrent programming
 Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Name:		python-%{module}
 Version:	0.4.15
-Release:	3
+Release:	4
 License:	MIT, PSF (Stackless Python parts)
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/greenlet/
 Source0:	https://files.pythonhosted.org/packages/source/g/greenlet/%{module}-%{version}.tar.gz
 # Source0-md5:	10fa304f673fc18b28fa6d8c6658cb80
+Patch0:		%{name}-py3.8.patch
 URL:		https://pypi.org/project/greenlet/
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.714
@@ -32,6 +34,9 @@ BuildRequires:	python3-2to3 >= 1:3.2
 BuildRequires:	python3-devel >= 1:3.2
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-modules >= 1:3.2
+%endif
+%if %{with doc}
+BuildRequires:	sphinx-pdg
 %endif
 Requires:	python-modules >= 1:2.4
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -99,31 +104,54 @@ This package contains header files required for C modules development.
 Ten pakiet zawiera pliki nagłówkowe potrzebne do tworzenia modułów w
 C.
 
+%package apidocs
+Summary:	API documentation for Python greenlet module
+Summary(pl.UTF-8):	Dokumentacja API modułu Pythona greenlet
+Group:		Documentation
+
+%description apidocs
+API documentation for Python greenlet module.
+
+%description apidocs -l pl.UTF-8
+Dokumentacja API modułu Pythona greenlet.
+
 %prep
 %setup -q -n greenlet-%{version}
+%patch0 -p1
 
 %build
 %if %{with python2}
-%py_build %{?with_tests_py2:test}
+%py_build
 
 %if %{with tests_py2}
-# Run the upstream benchmarking suite to further exercise the code:
-PYTHONPATH=$(echo $(pwd)/build-2/lib.*-2.?) %{__python} benchmarks/chain.py
+BUILDDIR=$(echo $(pwd)/build-2/lib.linux-*)
+PYTHONPATH="$BUILDDIR" \
+%{__python} run-tests.py -n -b build-2/tests
 
-# remove the py2 module copy, as it would break py3 tests
-rm *.so
+# Run the upstream benchmarking suite to further exercise the code:
+PYTHONPATH="$BUILDDIR" \
+%{__python} benchmarks/chain.py
 %endif
 %endif
 
 %if %{with python3}
-%py3_build %{?with_tests:test}
+%py3_build
 
 %if %{with tests}
+BUILDDIR=$(echo $(pwd)/build-3/lib.linux-*)
+PYTHONPATH="$BUILDDIR" \
+%{__python3} run-tests.py -n -b build-3/tests
+
 # Run the upstream benchmarking suite to further exercise the code:
 mkdir -p benchmarks-3
 2to3-%{py3_ver} -o benchmarks-3 -n -w --no-diffs benchmarks
-PYTHONPATH=$(echo $(pwd)/build-3/lib.*-3.?) %{__python3} benchmarks-3/chain.py
+PYTHONPATH="$BUILDDIR" \
+%{__python3} benchmarks-3/chain.py
 %endif
+%endif
+
+%if %{with doc}
+%{__make} -C doc html
 %endif
 
 %install
@@ -145,7 +173,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with python2}
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS LICENSE NEWS README.rst doc/greenlet.txt benchmarks
+%doc AUTHORS LICENSE NEWS README.rst benchmarks
 %attr(755,root,root) %{py_sitedir}/greenlet.so
 %{py_sitedir}/greenlet-%{version}-py*.egg-info
 
@@ -157,11 +185,17 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with python3}
 %files -n python3-%{module}
 %defattr(644,root,root,755)
-%doc AUTHORS LICENSE NEWS README.rst doc/greenlet.txt %{?with_tests:benchmarks-3}
+%doc AUTHORS LICENSE NEWS README.rst %{?with_tests:benchmarks-3}
 %attr(755,root,root) %{py3_sitedir}/greenlet.cpython-*.so
 %{py3_sitedir}/greenlet-%{version}-py*.egg-info
 
 %files -n python3-%{module}-devel
 %defattr(644,root,root,755)
 %{_includedir}/python%{py3_ver}*/greenlet
+%endif
+
+%if %{with doc}
+%files apidocs
+%defattr(644,root,root,755)
+%doc doc/_build/html/{_static,*.html,*.js}
 %endif

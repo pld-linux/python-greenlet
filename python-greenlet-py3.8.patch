@@ -1,0 +1,23 @@
+--- greenlet-0.4.15/benchmarks/chain.py.orig	2016-12-11 00:52:06.000000000 +0100
++++ greenlet-0.4.15/benchmarks/chain.py	2020-01-01 21:06:15.218260648 +0100
+@@ -5,7 +5,10 @@
+ """
+ 
+ import optparse
+-import time
++try:
++    from time import perf_counter
++except:
++    from time import clock as perf_counter
+ 
+ import greenlet
+ 
+@@ -34,6 +37,6 @@
+     if len(args) != 0:
+         p.error('unexpected arguments: %s' % ', '.join(args))
+ 
+-    start_time = time.clock()
++    start_time = perf_counter()
+     print 'Result:', chain(options.num_greenlets)
+-    print time.clock() - start_time, 'seconds'
++    print perf_counter() - start_time, 'seconds'
