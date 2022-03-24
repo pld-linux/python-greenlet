@@ -14,31 +14,31 @@
 Summary:	Lightweight in-process concurrent programming
 Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Name:		python-%{module}
-Version:	0.4.17
-Release:	2
+Version:	1.1.2
+Release:	1
 License:	MIT, PSF (Stackless Python parts)
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/greenlet/
 Source0:	https://files.pythonhosted.org/packages/source/g/greenlet/%{module}-%{version}.tar.gz
-# Source0-md5:	d964c95c2d2f0f02f36c75e158d8e3dc
+# Source0-md5:	f424fbd9afeed575dd2ba5f0ac66e30b
 Patch0:		%{name}-py3.8.patch
 URL:		https://pypi.org/project/greenlet/
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.714
 %if %{with python2}
-BuildRequires:	python-devel >= 1:2.4
+BuildRequires:	python-devel >= 1:2.7
 BuildRequires:	python-setuptools
 %endif
 %if %{with python3}
-BuildRequires:	python3-2to3 >= 1:3.2
-BuildRequires:	python3-devel >= 1:3.2
+BuildRequires:	python3-2to3 >= 1:3.5
+BuildRequires:	python3-devel >= 1:3.5
 BuildRequires:	python3-setuptools
-BuildRequires:	python3-modules >= 1:3.2
+BuildRequires:	python3-modules >= 1:3.5
 %endif
 %if %{with doc}
-BuildRequires:	sphinx-pdg
+BuildRequires:	sphinx-pdg-3
 %endif
-Requires:	python-modules >= 1:2.4
+Requires:	python-modules >= 1:2.7
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # -fno-tree-dominator-opts because https://bugzilla.opensuse.org/show_bug.cgi?id=902146
@@ -62,7 +62,7 @@ Summary:	C development headers for Python 2 greenlet module
 Summary(pl.UTF-8):	Pliki nagłówkowe C dla modułu Pythona 2 greenlet
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
-Requires:	python-devel >= 1:2.4
+Requires:	python-devel >= 1:2.7
 
 %description devel
 This package contains header files required for C modules development.
@@ -75,7 +75,7 @@ C.
 Summary:	Lightweight in-process concurrent programming
 Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Group:		Libraries/Python
-Requires:	python3-modules >= 1:3.2
+Requires:	python3-modules >= 1:3.5
 
 %description -n python3-%{module}
 The greenlet package is a spin-off of Stackless, a version of CPython
@@ -95,7 +95,7 @@ Summary:	C development headers for Python 3 greenlet module
 Summary(pl.UTF-8):	Pliki nagłówkowe C dla modułu Pythona 3 greenlet
 Group:		Development/Libraries
 Requires:	python3-%{module} = %{version}-%{release}
-Requires:	python3-devel >= 1:3.2
+Requires:	python3-devel >= 1:3.5
 
 %description -n python3-%{module}-devel
 This package contains header files required for C modules development.
@@ -126,7 +126,7 @@ Dokumentacja API modułu Pythona greenlet.
 %if %{with tests_py2}
 BUILDDIR=$(echo $(pwd)/build-2/lib.linux-*)
 PYTHONPATH="$BUILDDIR" \
-%{__python} run-tests.py -n -b build-2/tests
+%{__python} -m unittest discover greenlet.tests
 
 # Run the upstream benchmarking suite to further exercise the code:
 PYTHONPATH="$BUILDDIR" \
@@ -140,7 +140,7 @@ PYTHONPATH="$BUILDDIR" \
 %if %{with tests}
 BUILDDIR=$(echo $(pwd)/build-3/lib.linux-*)
 PYTHONPATH="$BUILDDIR" \
-%{__python3} run-tests.py -n -b build-3/tests
+%{__python3} -m unittest discover greenlet.tests
 
 # Run the upstream benchmarking suite to further exercise the code:
 mkdir -p benchmarks-3
@@ -151,7 +151,9 @@ PYTHONPATH="$BUILDDIR" \
 %endif
 
 %if %{with doc}
-%{__make} -C doc html
+PYTHONPATH=$(echo $(pwd)/build-3/lib.linux-*) \
+%{__make} -C docs html \
+	SPHINXBUILD=sphinx-build-3
 %endif
 
 %install
@@ -160,11 +162,16 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with python2}
 %py_install
 
+%{__rm} $RPM_BUILD_ROOT%{py_sitedir}/greenlet/*.[ch]
+%{__rm} -r $RPM_BUILD_ROOT%{py_sitedir}/greenlet/{platform,tests}
 %py_postclean
 %endif
 
 %if %{with python3}
 %py3_install
+
+%{__rm} $RPM_BUILD_ROOT%{py3_sitedir}/greenlet/*.[ch]
+%{__rm} -r $RPM_BUILD_ROOT%{py3_sitedir}/greenlet/{platform,tests}
 %endif
 
 %clean
@@ -173,8 +180,10 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with python2}
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS LICENSE NEWS README.rst benchmarks
-%attr(755,root,root) %{py_sitedir}/greenlet.so
+%doc AUTHORS CHANGES.rst LICENSE README.rst benchmarks
+%dir %{py_sitedir}/greenlet
+%attr(755,root,root) %{py_sitedir}/greenlet/_greenlet.so
+%{py_sitedir}/greenlet/*.py[co]
 %{py_sitedir}/greenlet-%{version}-py*.egg-info
 
 %files devel
@@ -185,8 +194,11 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with python3}
 %files -n python3-%{module}
 %defattr(644,root,root,755)
-%doc AUTHORS LICENSE NEWS README.rst %{?with_tests:benchmarks-3}
-%attr(755,root,root) %{py3_sitedir}/greenlet.cpython-*.so
+%doc AUTHORS CHANGES.rst LICENSE README.rst %{?with_tests:benchmarks-3}
+%dir %{py3_sitedir}/greenlet
+%attr(755,root,root) %{py3_sitedir}/greenlet/_greenlet.cpython-*.so
+%{py3_sitedir}/greenlet/*.py
+%{py3_sitedir}/greenlet/__pycache__
 %{py3_sitedir}/greenlet-%{version}-py*.egg-info
 
 %files -n python3-%{module}-devel
@@ -197,5 +209,5 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with doc}
 %files apidocs
 %defattr(644,root,root,755)
-%doc doc/_build/html/{_static,*.html,*.js}
+%doc docs/_build/html/{_modules,_static,*.html,*.js}
 %endif
