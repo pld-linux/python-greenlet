@@ -14,15 +14,16 @@
 Summary:	Lightweight in-process concurrent programming
 Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Name:		python-%{module}
-Version:	1.1.2
-Release:	4
+Version:	1.1.3
+Release:	1
 License:	MIT, PSF (Stackless Python parts)
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/greenlet/
 Source0:	https://files.pythonhosted.org/packages/source/g/greenlet/%{module}-%{version}.tar.gz
-# Source0-md5:	f424fbd9afeed575dd2ba5f0ac66e30b
+# Source0-md5:	4b8954da74881abb5f8129f94aa8219f
 Patch0:		%{name}-py3.8.patch
 URL:		https://pypi.org/project/greenlet/
+BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.714
 %if %{with python2}
@@ -36,6 +37,8 @@ BuildRequires:	python3-setuptools
 BuildRequires:	python3-modules >= 1:3.5
 %endif
 %if %{with doc}
+# already installed
+BuildRequires:	python3-greenlet
 BuildRequires:	sphinx-pdg-3
 %endif
 Requires:	python-modules >= 1:2.7
@@ -108,6 +111,7 @@ C.
 Summary:	API documentation for Python greenlet module
 Summary(pl.UTF-8):	Dokumentacja API modułu Pythona greenlet
 Group:		Documentation
+BuildArch:	noarch
 
 %description apidocs
 API documentation for Python greenlet module.
