@@ -31,7 +31,7 @@ BuildRequires:	python-devel >= 1:2.7
 BuildRequires:	python-setuptools
 %endif
 %if %{with python3}
-BuildRequires:	python3-2to3 >= 1:3.5
+BuildRequires:	python3-fissix
 BuildRequires:	python3-devel >= 1:3.5
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-modules >= 1:3.5
@@ -148,7 +148,7 @@ PYTHONPATH="$BUILDDIR" \
 
 # Run the upstream benchmarking suite to further exercise the code:
 mkdir -p benchmarks-3
-2to3-%{py3_ver} -o benchmarks-3 -n -w --no-diffs benchmarks
+%{__python3} -m fissix -o benchmarks-3 -n -w --no-diffs benchmarks
 PYTHONPATH="$BUILDDIR" \
 %{__python3} benchmarks-3/chain.py
 %endif
