@@ -1,7 +1,7 @@
 #
 # Conditional build:
 %bcond_without	python2		# CPython 2.x module
-%bcond_without	python3		# CPython 3.x module
+%bcond_with	python3		# CPython 3.x module
 %bcond_without	doc		# Sphinx documentation
 %bcond_without	tests		# unit tests and benchmarks (any)
 %bcond_without	tests_py2	# CPython 2.x module tests
@@ -14,13 +14,13 @@
 Summary:	Lightweight in-process concurrent programming
 Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Name:		python-%{module}
-Version:	1.1.3
-Release:	3
+Version:	1.1.3.post0
+Release:	1
 License:	MIT, PSF (Stackless Python parts)
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/greenlet/
 Source0:	https://files.pythonhosted.org/packages/source/g/greenlet/%{module}-%{version}.tar.gz
-# Source0-md5:	4b8954da74881abb5f8129f94aa8219f
+# Source0-md5:	b3e86eb9ab0908e6e3ef542e9b94d7e1
 Patch0:		%{name}-py3.8.patch
 URL:		https://pypi.org/project/greenlet/
 BuildRequires:	rpm-build >= 4.6
@@ -37,9 +37,7 @@ BuildRequires:	python3-setuptools
 BuildRequires:	python3-modules >= 1:3.5
 %endif
 %if %{with doc}
-# already installed
-BuildRequires:	python3-greenlet
-BuildRequires:	sphinx-pdg-3
+BuildRequires:	sphinx-pdg-2
 %endif
 Requires:	python-modules >= 1:2.7
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -155,9 +153,9 @@ PYTHONPATH="$BUILDDIR" \
 %endif
 
 %if %{with doc}
-PYTHONPATH=$(echo $(pwd)/build-3/lib.linux-*) \
+PYTHONPATH=$(echo $(pwd)/build-2/lib.linux-*) \
 %{__make} -C docs html \
-	SPHINXBUILD=sphinx-build-3
+	SPHINXBUILD=sphinx-build-2
 %endif
 
 %install
