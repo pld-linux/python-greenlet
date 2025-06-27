@@ -1,7 +1,7 @@
 #
 # Conditional build:
 %bcond_without	python2		# CPython 2.x module
-%bcond_with	python3		# CPython 3.x module
+%bcond_with	python3		# CPython 3.x module (built from python3-greenlet.spec)
 %bcond_without	doc		# Sphinx documentation
 %bcond_without	tests		# unit tests and benchmarks (any)
 %bcond_without	tests_py2	# CPython 2.x module tests
@@ -14,14 +14,14 @@
 Summary:	Lightweight in-process concurrent programming
 Summary(pl.UTF-8):	Lekkie programowanie równoległe wewnątrz procesu
 Name:		python-%{module}
-Version:	1.1.3.post0
+# keep 2.x here for python2 support
+Version:	2.0.2
 Release:	1
 License:	MIT, PSF (Stackless Python parts)
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/greenlet/
 Source0:	https://files.pythonhosted.org/packages/source/g/greenlet/%{module}-%{version}.tar.gz
-# Source0-md5:	b3e86eb9ab0908e6e3ef542e9b94d7e1
-Patch0:		%{name}-py3.8.patch
+# Source0-md5:	e6637d59015cba7e86f2111e6aa8168b
 URL:		https://pypi.org/project/greenlet/
 BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpm-pythonprov
@@ -29,12 +29,21 @@ BuildRequires:	rpmbuild(macros) >= 1.714
 %if %{with python2}
 BuildRequires:	python-devel >= 1:2.7
 BuildRequires:	python-setuptools
+%if %{with tests}
+BuildRequires:	python-objgraph
+BuildRequires:	python-psutil
+BuildRequires:	python-pyperf
+%endif
 %endif
 %if %{with python3}
-BuildRequires:	python3-fissix
 BuildRequires:	python3-devel >= 1:3.5
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-modules >= 1:3.5
+%if %{with tests}
+BuildRequires:	python3-objgraph
+BuildRequires:	python3-psutil
+BuildRequires:	python3-pyperf
+%endif
 %endif
 %if %{with doc}
 BuildRequires:	sphinx-pdg-2
@@ -119,7 +128,9 @@ Dokumentacja API modułu Pythona greenlet.
 
 %prep
 %setup -q -n greenlet-%{version}
-%patch -P 0 -p1
+
+# take too long (including timeouts)
+%{__rm} src/greenlet/tests/test_leaks.py
 
 %build
 %if %{with python2}
@@ -145,10 +156,8 @@ PYTHONPATH="$BUILDDIR" \
 %{__python3} -m unittest discover greenlet.tests
 
 # Run the upstream benchmarking suite to further exercise the code:
-mkdir -p benchmarks-3
-%{__python3} -m fissix -o benchmarks-3 -n -w --no-diffs benchmarks
 PYTHONPATH="$BUILDDIR" \
-%{__python3} benchmarks-3/chain.py
+%{__python3} benchmarks/chain.py
 %endif
 %endif
 
@@ -165,6 +174,7 @@ rm -rf $RPM_BUILD_ROOT
 %py_install
 
 %{__rm} $RPM_BUILD_ROOT%{py_sitedir}/greenlet/*.[ch]
+%{__rm} $RPM_BUILD_ROOT%{py_sitedir}/greenlet/*.[ch]pp
 %{__rm} -r $RPM_BUILD_ROOT%{py_sitedir}/greenlet/{platform,tests}
 %py_postclean
 %endif
@@ -196,7 +206,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with python3}
 %files -n python3-%{module}
 %defattr(644,root,root,755)
-%doc AUTHORS CHANGES.rst LICENSE README.rst %{?with_tests:benchmarks-3}
+%doc AUTHORS CHANGES.rst LICENSE README.rst benchmarks
 %dir %{py3_sitedir}/greenlet
 %attr(755,root,root) %{py3_sitedir}/greenlet/_greenlet.cpython-*.so
 %{py3_sitedir}/greenlet/*.py
